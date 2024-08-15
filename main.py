@@ -32,29 +32,35 @@ while True:
     elif what_do == "2":
         links = []
         print("перехожу по ссылке, пожалуйста, подождите") # ссылок много. прога тормозит
-        for element in driver.find_elements(By.TAG_NAME, "a"): # найти все ссылки
-            cl = element.get_attribute("class") # new - нет такой статьи
-            hr = element.get_attribute("href") # # - нет такой статьи
-            if cl != "new" and hr != "#":
-                links.append(element) # добавить ссылку в список
-        pprint.pprint(links) # вывести ссылки
-        link = random.choice(links) # выбрать случайную ссылку
-        driver.get(link.get_attribute("href")) # перейти на выбранную ссылку
+        for element in driver.find_elements(By.TAG_NAME, "p"): #ищу все ссылки в параграфах
+            cl = element.get_attribute("class")
+            if cl != "reference-text" and cl != "new" and cl != "mw-editsection": # сноски и new - нет такой статьи
+                try:
+                    links.append(element.find_element(By.TAG_NAME, "a").get_attribute("href")) # найти ссылки
+                    #print("add")
+                except:
+                    #print("error")
+                    pass
+        link = random.choice(links) # выбрать случайную ссылку
+        driver.get(link) # перейти по ссылке
+
+
+
 
     elif what_do == "3":
         what_find = input("Что искать? ")
+        print(f"Ищу {what_find} и перехожу по ссылке, пожалуйста, подождите") # прога тормозит
         search_box = driver.find_element(By.ID, "searchInput")  # найти поле поиска
         search_box.send_keys(what_find)  # ввести в строку поиска Википедии то, что ввел пользователь
         search_box.send_keys(Keys.RETURN)  # нажать Enter
-        time.sleep(10)
+        time.sleep(1)
 
         for element in driver.find_elements(By.TAG_NAME, "div"): # найти все ссылки
-            cl = element.get_attribute("class") # new - нет такой статьи
-            if cl == "mw-search-results-container":
-                driver.find_element(By.LINK_TEXT, value=what_find).click()  # перейти на первую ссылку
-
-
-        #driver.find_element(By.LINK_TEXT, value=what_find).click()  # перейти на первую ссылку
-        #driver.find_element(By.LINK_TEXT, what_find).click() # перейти на первую ссылку
+            cl = element.get_attribute("class")
+            if cl == "mw-search-result-heading":
+                #print(cl)
+                first_link = element.find_element(By.TAG_NAME, "a").get_attribute("href")  # перейти на первую ссылку
+                driver.get(first_link)
+                break
 
 #input("нажмите Enter для завершения") # что бы браузер сам не закрывался
